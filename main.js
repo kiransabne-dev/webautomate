@@ -1,4 +1,6 @@
 const {Builder, By, Key, until, Capabilities} = require('selenium-webdriver');
+
+const databaseConfig = require('./config/databaseConfig');
 // firefox = require('selenium-webdriver/firefox');
 
 // var ffProfileFile = require('./ffprofile');
@@ -9,6 +11,10 @@ const {Builder, By, Key, until, Capabilities} = require('selenium-webdriver');
 const linkIncrementBy = 9;
 
 (async function example() {
+  // database connection
+  const pgClient = await databaseConfig.pgPool.connect()
+  // console.log("pgClient -> ", pgClient);
+
   let driver = await new Builder().forBrowser('firefox').withCapabilities(Capabilities.firefox().setAcceptInsecureCerts(true)).build();
 
  // let driver = await new Builder().withCapabilities(Capabilities.firefox().setAcceptInsecureCerts(true)).forBrowser('firefox').build();
@@ -73,6 +79,16 @@ const linkIncrementBy = 9;
         firstDiaryNumber = firstDiaryNumber + linkIncrementBy;
         firstPetitionerNumeber = firstPetitionerNumeber + linkIncrementBy;
         firstRespondentNumber = firstRespondentNumber + linkIncrementBy;
+
+        const text = 'insert into filesdb(dairyNumber, petitionerName, respondentName, hrefText, fileType) values ($1, $2, $3, $4, $5) returning id'
+        let values = [diaryNumber, petitionerName, respondentName, hreftext, 'Const'];
+
+        pgClient.query(text, values).then(function(res){
+          console.log("res -> ", res.rows[0].id);
+        }).catch(function(err){
+          console.log("insert err -> ", err)
+          return
+        })
       }
       // getting first href link 
       

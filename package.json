@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "pg": "^8.3.3",
     "selenium-webdriver": "^4.0.0-alpha.7"
   }
 }

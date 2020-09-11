@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"os/exec"
+
+	s "strings"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -57,8 +60,26 @@ func main() {
 	// 	log.Println("curl err -> ", err)
 	// }
 	for i, singleFileData := range fileDataList {
-		log.Println(" i -> ", i, "singleFileData -> ", singleFileData)
+		log.Println(" i -> ", i, "singleFileData -> ", singleFileData.ID)
+		// curl get pdf file
+		//curl https://www.cyberciti.biz/files/sticker/sticker_book.pdf -o output.pdf
+
+		curl := exec.Command("curl", "-k", singleFileData.HrefText, "-o", "downloads/"+singleFileData.PetitionerName+" vs "+s.ReplaceAll(singleFileData.RespondentName, ".", "")+".pdf")
+		_, err = curl.Output()
+		if err != nil {
+			log.Println("curl err -> ", err)
+		}
+
+		// updated Downloaded Flag to Y in db to avoid repeated downloads
+		updatedId, err := updateDownloadFlag(singleFileData.ID)
+		if err != nil {
+			log.Println("Update failed/ -> ", err)
+			return
+		}
+		log.Println("updatedId -> ", updatedId)
 	}
+	log.Println("program Completed.......")
+	os.Exit(0)
 
 }
 
@@ -75,7 +96,7 @@ func getListOfNotDownloadedFiles() ([]FileData, error) {
 	fileDataSlice := make([]FileData, 0)
 	for rows.Next() {
 		singleData := FileData{}
-		err := rows.Scan(&singleData.DiaryNumber, &singleData.PetitionerName, &singleData.RespondentName, &singleData.HrefText, &singleData.FileType)
+		err := rows.Scan(&singleData.ID, &singleData.DiaryNumber, &singleData.PetitionerName, &singleData.RespondentName, &singleData.HrefText, &singleData.FileType)
 		if err != nil {
 			log.Panicln("scan err -> ", err)
 			return nil, err
@@ -92,7 +113,7 @@ func getListOfNotDownloadedFiles() ([]FileData, error) {
 
 // update the isDownloadFlag to Y
 func updateDownloadFlag(id int) (int, error) {
-	sqlStmt := `update filesdb set isDownload = 'Y' where id = $1 returning id`
+	sqlStmt := `update filesdb set isDownloaded = 'Y' where id = $1 returning id`
 	var returnId int
 	err := db.QueryRow(sqlStmt, id).Scan(&returnId)
 	if err != nil {

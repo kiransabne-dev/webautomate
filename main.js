@@ -54,9 +54,9 @@ const linkIncrementBy = 9;
 
         let hreftext = await driver.findElement(By.xpath('/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr['+linkFirstNumberStart+']/td[3]/a[1]')).getAttribute("href")
         //hreftext.click()
-
+        
         console.log("hreftext -> ", hreftext);
-
+        let date = hreftext.substring(hreftext.lastIndexOf("_")+1, hreftext.lastIndexOf("."));
         // diaRy Number
         let diaryNumber = await driver.findElement(By.xpath('/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr['+firstDiaryNumber+']/td[3]')).getText();
 
@@ -71,6 +71,8 @@ const linkIncrementBy = 9;
 
         
 
+        console.log("date -> ", date);
+
 
 
 
@@ -80,8 +82,8 @@ const linkIncrementBy = 9;
         firstPetitionerNumeber = firstPetitionerNumeber + linkIncrementBy;
         firstRespondentNumber = firstRespondentNumber + linkIncrementBy;
 
-        const text = 'insert into filesdb(dairyNumber, petitionerName, respondentName, hrefText, fileType) values ($1, $2, $3, $4, $5) returning id'
-        let values = [diaryNumber, petitionerName, respondentName, hreftext, 'Const'];
+        const text = 'insert into filesdb(dairyNumber, petitionerName, respondentName, hrefText, fileType, date) values ($1, $2, $3, $4, $5, $6) returning id'
+        let values = [diaryNumber, petitionerName, respondentName, hreftext, 'Const', date];
 
         pgClient.query(text, values).then(function(res){
           console.log("res -> ", res.rows[0].id);
@@ -96,8 +98,8 @@ const linkIncrementBy = 9;
       // /html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr[11]/td[3]/a[1]
 
       // /html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr[20]/td[3]/a[1]
-
-      await driver.sleep(600000)
+      console.log("Done Inserting ->> ")
+      //await driver.sleep(600000)
     }
     // await driver.findElement(By.name('q')).sendKeys('webdriver', Key.RETURN);
     // await driver.wait(until.titleIs('webdriver - Google Search'));

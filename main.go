@@ -19,6 +19,7 @@ type FileData struct {
 	RespondentName string `json:"respondentName"`
 	HrefText       string `json:"hrefText"`
 	FileType       string `json:"fileType"`
+	DateStr        string `json:"date"`
 }
 
 var db *sql.DB
@@ -64,7 +65,7 @@ func main() {
 		// curl get pdf file
 		//curl https://www.cyberciti.biz/files/sticker/sticker_book.pdf -o output.pdf
 
-		curl := exec.Command("curl", "-k", singleFileData.HrefText, "-o", "downloads/"+singleFileData.PetitionerName+" vs "+s.ReplaceAll(singleFileData.RespondentName, ".", "")+".pdf")
+		curl := exec.Command("curl", "-k", singleFileData.HrefText, "-o", "downloads/"+singleFileData.PetitionerName+" vs "+s.ReplaceAll(singleFileData.RespondentName, ".", "")+" "+singleFileData.DateStr+".pdf")
 		_, err = curl.Output()
 		if err != nil {
 			log.Println("curl err -> ", err)
@@ -85,7 +86,7 @@ func main() {
 
 // making select query for getting data of not downloaded File
 func getListOfNotDownloadedFiles() ([]FileData, error) {
-	sqlStmt := `select id, dairyNumber, petitionerName, respondentName, hrefText, fileType from filesdb where isDownloaded = 'N'`
+	sqlStmt := `select id, dairyNumber, petitionerName, respondentName, hrefText, fileType, date from filesdb where isDownloaded = 'N'`
 
 	rows, err := db.Query(sqlStmt)
 	if err != nil {
@@ -96,7 +97,7 @@ func getListOfNotDownloadedFiles() ([]FileData, error) {
 	fileDataSlice := make([]FileData, 0)
 	for rows.Next() {
 		singleData := FileData{}
-		err := rows.Scan(&singleData.ID, &singleData.DiaryNumber, &singleData.PetitionerName, &singleData.RespondentName, &singleData.HrefText, &singleData.FileType)
+		err := rows.Scan(&singleData.ID, &singleData.DiaryNumber, &singleData.PetitionerName, &singleData.RespondentName, &singleData.HrefText, &singleData.FileType, &singleData.DateStr)
 		if err != nil {
 			log.Panicln("scan err -> ", err)
 			return nil, err

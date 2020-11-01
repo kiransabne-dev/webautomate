@@ -55,7 +55,9 @@ const linkIncrementBy = 9;
         let hreftext = await driver.findElement(By.xpath('/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr['+linkFirstNumberStart+']/td[3]/a[1]')).getAttribute("href")
         //hreftext.click()
         
-        console.log("hreftext -> ", hreftext);
+        let testDate = await driver.findElement(By.xpath('/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr[2]/td[3]/a[1]')).getText("innerHTML");
+
+        console.log("testDate -> ", testDate);
         let date = hreftext.substring(hreftext.lastIndexOf("_")+1, hreftext.lastIndexOf("."));
         // diaRy Number
         let diaryNumber = await driver.findElement(By.xpath('/html/body/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div/div/div/div/div/div[7]/div/div/div[2]/table/tbody/tr['+firstDiaryNumber+']/td[3]')).getText();
@@ -81,7 +83,12 @@ const linkIncrementBy = 9;
         firstDiaryNumber = firstDiaryNumber + linkIncrementBy;
         firstPetitionerNumeber = firstPetitionerNumeber + linkIncrementBy;
         firstRespondentNumber = firstRespondentNumber + linkIncrementBy;
-
+        if(testDate != ""){
+          date = testDate;
+        }
+        if(date.length > 40){
+          date = "";
+        }
         const text = 'insert into filesdb(dairyNumber, petitionerName, respondentName, hrefText, fileType, date) values ($1, $2, $3, $4, $5, $6) returning id'
         let values = [diaryNumber, petitionerName, respondentName, hreftext, 'Const', date];
 
